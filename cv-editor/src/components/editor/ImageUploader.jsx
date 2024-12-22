@@ -1,3 +1,4 @@
+// components/editor/ImageUploader.jsx
 import { useRef } from 'react';
 import { convertFileToBase64, compressImage } from '../utils/imageUtils';
 import { Button } from '../shared/Button';

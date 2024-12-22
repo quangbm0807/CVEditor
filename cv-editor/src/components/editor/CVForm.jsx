@@ -1,14 +1,24 @@
+// components/editor/CVForm.jsx
+import React from 'react';
 import { Input } from "../shared/Input";
 import { ImageUploader } from "./ImageUploader";
+import { SectionManager } from './SectionManager';
 
 export const CVForm = ({ data, onChange }) => {
-    const handleChange = (field, value) => {
+    const handlePersonalInfoChange = (field, value) => {
         onChange({
             ...data,
             personalInfo: {
                 ...data.personalInfo,
                 [field]: value
             }
+        });
+    };
+
+    const handleSectionsChange = (newSections) => {
+        onChange({
+            ...data,
+            sections: newSections
         });
     };
 
@@ -19,35 +29,44 @@ export const CVForm = ({ data, onChange }) => {
                 <div className="space-y-4">
                     <ImageUploader
                         value={data.personalInfo.profileImage}
-                        onChange={(value) => handleChange('profileImage', value)}
+                        onChange={(value) => handlePersonalInfoChange('profileImage', value)}
                     />
                     <Input
                         label="Họ và tên"
                         value={data.personalInfo.fullName}
-                        onChange={(e) => handleChange('fullName', e.target.value)}
+                        onChange={(e) => handlePersonalInfoChange('fullName', e.target.value)}
                     />
                     <Input
                         label="Chức danh"
                         value={data.personalInfo.title}
-                        onChange={(e) => handleChange('title', e.target.value)}
+                        onChange={(e) => handlePersonalInfoChange('title', e.target.value)}
                     />
                     <Input
                         label="Email"
                         type="email"
                         value={data.personalInfo.email}
-                        onChange={(e) => handleChange('email', e.target.value)}
+                        onChange={(e) => handlePersonalInfoChange('email', e.target.value)}
                     />
                     <Input
                         label="Số điện thoại"
                         value={data.personalInfo.phone}
-                        onChange={(e) => handleChange('phone', e.target.value)}
+                        onChange={(e) => handlePersonalInfoChange('phone', e.target.value)}
                     />
                     <Input
                         label="Địa chỉ"
                         value={data.personalInfo.address}
-                        onChange={(e) => handleChange('address', e.target.value)}
+                        onChange={(e) => handlePersonalInfoChange('address', e.target.value)}
                     />
                 </div>
+            </div>
+
+            {/* Sections */}
+            <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-lg font-medium mb-4">Nội dung CV</h2>
+                <SectionManager
+                    sections={data.sections || []}
+                    onChange={handleSectionsChange}
+                />
             </div>
         </div>
     );

@@ -1,3 +1,4 @@
+// components/editor/TemplateSelector.jsx
 import { CV_TEMPLATES } from "../constants/templates";
 
 export const TemplateSelector = ({ value, onChange }) => {

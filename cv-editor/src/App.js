@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState } from 'react';
 import { useCV } from './components/hooks/useCV';
 import { TemplateSelector } from './components/editor/TemplateSelector';
@@ -5,12 +6,32 @@ import { CVForm } from './components/editor/CVForm';
 import html2canvas from 'html2canvas';
 import { Button } from './components/shared/Button';
 import jsPDF from 'jspdf';
-import templates from './components/cv-templates';
+import DraggableTemplate from './components/editor/DraggableTemplate';
+import { CV_TEMPLATES } from './components/constants/templates';
+
+const CVPreview = ({ template, data, isEditing, onDataChange }) => {
+  // Nếu đang ở chế độ chỉnh sửa, render DraggableTemplate
+  if (isEditing) {
+    return <DraggableTemplate data={data} onDataChange={onDataChange} />;
+  }
+
+  // Nếu không, render template thông thường
+  const Template = CV_TEMPLATES[template]?.component;
+  if (!Template) {
+    return <div>Template không tồn tại</div>;
+  }
+
+  return <Template data={data} />;
+};
 
 const App = () => {
-  const [cv, updateCV] = useCV();
-  const [activeTab, setActiveTab] = useState('edit');
+  const { cv, updateCV } = useCV();
+  const [editMode, setEditMode] = useState(false);
+
   const handleExportPDF = async () => {
+    // Tắt chế độ chỉnh sửa trước khi xuất PDF
+    setEditMode(false);
+
     const element = document.getElementById('cv-preview');
     try {
       const canvas = await html2canvas(element);
@@ -34,16 +55,10 @@ const App = () => {
             <h1 className="text-2xl font-bold text-gray-900">CV Editor</h1>
             <div className="space-x-4">
               <Button
-                variant={activeTab === 'edit' ? 'primary' : 'secondary'}
-                onClick={() => setActiveTab('edit')}
+                variant={editMode ? 'primary' : 'secondary'}
+                onClick={() => setEditMode(!editMode)}
               >
-                Chỉnh sửa
-              </Button>
-              <Button
-                variant={activeTab === 'preview' ? 'primary' : 'secondary'}
-                onClick={() => setActiveTab('preview')}
-              >
-                Xem trước
+                {editMode ? 'Xem trước' : 'Chỉnh sửa'}
               </Button>
               <Button onClick={handleExportPDF}>
                 Xuất PDF
@@ -53,11 +68,10 @@ const App = () => {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'edit' ? (
-          <div className="grid grid-cols-12 gap-8">
-            {/* Sidebar */}
+        <div className="grid grid-cols-12 gap-8">
+          {/* Sidebar - chỉ hiển thị khi không ở chế độ kéo thả */}
+          {!editMode && (
             <div className="col-span-4">
               <div className="bg-white shadow rounded-lg p-6 mb-6">
                 <h2 className="text-lg font-medium mb-4">Chọn mẫu CV</h2>
@@ -71,42 +85,25 @@ const App = () => {
                 onChange={(data) => updateCV({ data })}
               />
             </div>
+          )}
 
-            {/* Preview */}
-            <div className="col-span-8">
-              <div className="bg-white shadow rounded-lg">
-                <div
-                  id="cv-preview"
-                  className="w-full aspect-[1/1.414] p-8" // Tỉ lệ A4
-                >
-                  <CVPreview template={cv.templateId} data={cv.data} />
-                </div>
+          {/* CV Preview/Edit Area */}
+          <div className={editMode ? 'col-span-12' : 'col-span-8'}>
+            <div className="bg-white shadow rounded-lg">
+              <div id="cv-preview" className="w-full p-8">
+                <CVPreview
+                  template={cv.templateId}
+                  data={cv.data}
+                  isEditing={editMode}
+                  onDataChange={(newData) => updateCV({ data: newData })}
+                />
               </div>
             </div>
           </div>
-        ) : (
-          // Preview mode fullscreen
-          <div className="max-w-4xl mx-auto bg-white shadow rounded-lg">
-            <div
-              id="cv-preview-full"
-              className="w-full p-8"
-            >
-              <CVPreview template={cv.templateId} data={cv.data} />
-            </div>
-          </div>
-        )}
+        </div>
       </main>
     </div>
   );
-};
-const CVPreview = ({ template, data }) => {
-  const TemplateComponent = templates[template];
-
-  if (!TemplateComponent) {
-    return <div>Template không tồn tại</div>;
-  }
-
-  return <TemplateComponent data={data} />;
 };
 
 export default App;
