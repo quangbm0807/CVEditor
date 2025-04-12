@@ -1,6 +1,6 @@
-// components/cv-templates/Template1.jsx
-const Template1 = ({ data }) => {
-    const { personalInfo } = data;
+// Template1.jsx - Add null check for data
+export const Template1 = ({ data = {} }) => {
+    const { personalInfo = {} } = data || {};
 
     return (
         <div className="cv-template-1">
@@ -16,7 +16,7 @@ const Template1 = ({ data }) => {
                     </div>
                 )}
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {personalInfo.fullName}
+                    {personalInfo.fullName || 'Your Name'}
                 </h1>
                 {personalInfo.title && (
                     <p className="text-xl text-gray-600 mb-4">{personalInfo.title}</p>
@@ -69,8 +69,6 @@ const Template1 = ({ data }) => {
         </div>
     );
 };
-
-// Template section renderers
 export const renderSectionItem = (type, item) => {
     switch (type) {
         case 'experience':
@@ -199,4 +197,5 @@ export const renderSectionItem = (type, item) => {
     }
 };
 
-export default Template1;
+
+
